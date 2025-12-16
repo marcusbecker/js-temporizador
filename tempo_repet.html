@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Temporizador com Repetições</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    input { margin: 5px; padding: 5px; }
+    button { padding: 10px 20px; }
+    #status { margin-top: 20px; font-size: 18px; }
+    #countdown { font-size: 48px; margin-top: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>⏱️ Temporizador com Repetições</h1>
+  
+  <label>Segundos: 
+    <input type="number" id="seconds" value="10" min="1" />
+  </label>
+  <br />
+  
+  <label>Repetições: 
+    <input type="number" id="repetitions" value="5" min="1" />
+  </label>
+  <br />
+  
+  <button onclick="startTimer()">Iniciar</button>
+  
+  <div id="countdown">00:00:00</div>
+  
+  <div id="status"></div>
+
+
+  <!-- Sons -->
+  <audio id="shortBeep" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+  <audio id="longBeep" src="https://actions.google.com/sounds/v1/emergency/beeper_emergency_call.ogg"></audio>
+  
+  <script>
+    function formatTime(totalSeconds) {
+      const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+      const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+      const secs = String(totalSeconds % 60).padStart(2, '0');
+      return `${hrs}:${mins}:${secs}`;
+    }
+
+    function startTimer() {
+      const seconds = parseInt(document.getElementById('seconds').value);
+      const repetitions = parseInt(document.getElementById('repetitions').value);
+      const status = document.getElementById('status');
+      const countdown = document.getElementById('countdown');
+      const shortBeep = document.getElementById('shortBeep');
+      const longBeep = document.getElementById('longBeep');
+      
+      let count = 0;
+      status.textContent = "Temporizador iniciado...";
+      
+      function runCycle() {
+        let remaining = seconds;
+        countdown.textContent = formatTime(remaining);
+        
+        const cycleInterval = setInterval(() => {
+          remaining--;
+          countdown.textContent = formatTime(remaining);
+          
+          if (remaining <= 0) {
+            clearInterval(cycleInterval);
+            count++;
+            status.textContent = `Repetição ${count} concluída.`;
+            
+            if (count < repetitions) {
+              shortBeep.play();
+              runCycle();
+            } else {
+              longBeep.play();
+              status.textContent = "✅ Todas as repetições concluídas!";
+              countdown.textContent = "00:00:00";
+            }
+          }
+        }, 1000);
+      }
+      runCycle();
+    }
+  </script>
+</body>
+</html>
