@@ -80,6 +80,30 @@
       }
       runCycle();
     }
+    
+    let wakeLock = null;
+    async function requestWakeLock() {
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        console.log('Wake Lock is active!');
+        wakeLock.addEventListener('release', () => {
+          console.log('Wake Lock released');
+        });
+      } catch (err) {
+        console.error(`${err.name}, ${err.message}`);
+      }
+    }
+
+    // Request lock on page load or user action
+    requestWakeLock();
+
+    // Re-acquire lock if tab becomes visible again
+    document.addEventListener('visibilitychange', async () => {
+      if (wakeLock !== null && document.visibilityState === 'visible') {
+        await requestWakeLock();
+      }
+    });       
   </script>
 </body>
 </html>
+
